@@ -217,7 +217,7 @@ cd ..
 
 ```bash
 # 通义千问 API Key（阿里云 DashScope）
-DASHSCOPE_API_KEY=sk-your-api-key
+DASHSCOPE_API_KEY=sk-null
 
 # MongoDB 连接
 MONGODB_URI=mongodb://localhost:27017

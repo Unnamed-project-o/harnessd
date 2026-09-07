@@ -44,6 +44,11 @@ export interface SSEThinkingEvent {
   status: "start" | "end";
 }
 
+export interface SSEErrorEvent {
+  type: "error";
+  message: string;
+}
+
 export interface SSETodoUpdateEvent {
   type: "todo_update";
   phase?: string;
@@ -70,6 +75,7 @@ export type SSEEvent =
   | SSEInterruptEvent
   | SSEDoneEvent
   | SSEThinkingEvent
+  | SSEErrorEvent
   | SSETodoUpdateEvent
   | SSEPhaseEvent;
 

@@ -118,6 +118,14 @@ export function useChat() {
           }
           break;
 
+        case "error":
+          setError(event.message);
+          setThinking(false);
+          setStreaming(false);
+          setPhase("idle");
+          setPhaseLabel("");
+          break;
+
         case "phase":
           setPhase(event.phase as HarnessPhase);
           setPhaseLabel(event.label);

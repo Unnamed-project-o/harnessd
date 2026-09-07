@@ -14,8 +14,17 @@ LLM_TEMPERATURE = 0.1
 LLM_MAX_TOKENS = 4096
 
 
+class LLMConfigurationError(RuntimeError):
+    """模型服务配置缺失或无效。"""
+
+
 def get_llm() -> ChatOpenAI:
     """获取 LLM 实例（通义千问 OpenAI 兼容接口）"""
+    if not LLM_API_KEY.strip():
+        raise LLMConfigurationError(
+            "DASHSCOPE_API_KEY 未配置。请在项目根目录 .env 中设置有效的 DashScope API Key 后重试。"
+        )
+
     return ChatOpenAI(
         model=LLM_MODEL,
         base_url=LLM_BASE_URL,

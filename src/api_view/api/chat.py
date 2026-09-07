@@ -13,7 +13,7 @@ import uuid
 from typing import AsyncGenerator
 from datetime import datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from langgraph.types import Command
 
@@ -27,6 +27,23 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 def sse_event(event: str, data: dict) -> str:
     """格式化 SSE 事件（严格遵循 event:/data: 协议）"""
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+
+async def ensure_agent_initialized() -> None:
+    """将启动期配置错误转成可供前端展示的 API 错误。"""
+    try:
+        await agent_loader.initialize()
+    except Exception as exc:
+        from ...agent.config import LLMConfigurationError
+
+        if isinstance(exc, LLMConfigurationError):
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+        web_logger.error("Agent initialization failed", exc_info=True)
+        raise HTTPException(
+            status_code=503,
+            detail="智能助手初始化失败，请检查 MongoDB、MCP Server 和模型服务配置。",
+        ) from exc
 
 
 # Harness 阶段 → 前端展示文案
@@ -331,7 +348,7 @@ async def stream_chat_response(
 @router.post("/stream")
 async def chat_stream(request: ChatRequest):
     """SSE 流式对话端点"""
-    await agent_loader.initialize()
+    await ensure_agent_initialized()
 
     thread_id = request.thread_id or agent_loader.generate_thread_id()
 
@@ -354,7 +371,7 @@ async def chat_stream(request: ChatRequest):
 @router.post("/{thread_id}/resume")
 async def chat_resume(thread_id: str, request: ResumeRequest):
     """中断恢复端点"""
-    await agent_loader.initialize()
+    await ensure_agent_initialized()
 
     return StreamingResponse(
         stream_chat_response(

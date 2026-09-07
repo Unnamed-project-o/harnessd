@@ -250,20 +250,21 @@ def create_main_agent(
         agent_logger.warning(f"Docker sandbox unavailable ({e}), falling back to LocalShell")
         sandbox_backend = LocalShellBackend(virtual_mode=True)
 
-    def backend_factory(rt):
-        """后端工厂：根据路径路由到不同后端"""
-        routes = {}
-        if store is not None:
-            routes["/memories/"] = StoreBackend(
-                namespace=lambda _rt: (user_context.user_id,),
-            )
-            routes["/persisted-skills/"] = StoreBackend(
-                namespace=lambda _rt: SKILLS_STORE_NAMESPACE,
-            )
-        return CompositeBackend(
-            default=sandbox_backend,
-            routes=routes,
+    # deepagents 0.7 起只接受已初始化的 Backend 实例，不再支持 backend factory。
+    routes = {}
+    if store is not None:
+        routes["/memories/"] = StoreBackend(
+            namespace=lambda _rt: (user_context.user_id,),
+            store=store,
         )
+        routes["/persisted-skills/"] = StoreBackend(
+            namespace=lambda _rt: SKILLS_STORE_NAMESPACE,
+            store=store,
+        )
+    backend = CompositeBackend(
+        default=sandbox_backend,
+        routes=routes,
+    )
 
     # ===== 3. 加载工具 =====
     from .tools.mcp_client import load_mcp_tools_sync
@@ -360,7 +361,7 @@ def create_main_agent(
         subagents=subagents if subagents else None,
         skills=None,
         memory=[str(MEMORY_DIR / "AGENTS.md")],
-        backend=backend_factory,
+        backend=backend,
         interrupt_on=INTERRUPT_ON_TOOLS,
         checkpointer=checkpointer,
         store=store,

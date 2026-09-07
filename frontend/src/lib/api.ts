@@ -2,6 +2,17 @@ import { Conversation, ChatRequest, ResumeRequest } from "./types";
 
 const BASE_URL = "http://localhost:8000/api";
 
+async function getErrorMessage(response: Response): Promise<string> {
+  try {
+    const payload = await response.json();
+    if (typeof payload?.detail === "string") return payload.detail;
+    if (typeof payload?.message === "string") return payload.message;
+  } catch {
+    // 响应不是 JSON 时使用通用错误消息。
+  }
+  return `请求失败（HTTP ${response.status}）`;
+}
+
 // ===== 对话 API =====
 export async function streamChat(
   request: ChatRequest,
@@ -16,7 +27,7 @@ export async function streamChat(
   });
 
   if (!response.ok) {
-    throw new Error(`Stream failed: ${response.status}`);
+    throw new Error(await getErrorMessage(response));
   }
 
   const reader = response.body?.getReader();
@@ -46,7 +57,7 @@ export async function resumeChat(
   );
 
   if (!response.ok) {
-    throw new Error(`Resume failed: ${response.status}`);
+    throw new Error(await getErrorMessage(response));
   }
 
   const reader = response.body?.getReader();

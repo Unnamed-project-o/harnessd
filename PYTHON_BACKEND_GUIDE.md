@@ -205,7 +205,7 @@ load_env()
 
 **.env 文件内容**：
 ```bash
-DASHSCOPE_API_KEY=sk-your-api-key
+DASHSCOPE_API_KEY=sk-null
 MONGODB_URI=mongodb://localhost:27017
 ERP_BASE_URL=http://47.92.108.163:8081
 MCP_SERVER_URL=http://localhost:9000

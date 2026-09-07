@@ -84,6 +84,7 @@ export default function Home() {
       <ChatArea
         messages={chat.messages}
         streaming={chat.streaming}
+        error={chat.error}
         thinking={chat.thinking}
         interrupted={chat.interrupted}
         interruptData={chat.interruptData}

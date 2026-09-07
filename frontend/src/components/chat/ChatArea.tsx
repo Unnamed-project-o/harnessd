@@ -14,6 +14,7 @@ import InterruptBanner from "@/components/interrupt/InterruptBanner";
 interface Props {
   messages: ChatMessage[];
   streaming: boolean;
+  error: string | null;
   thinking: boolean;
   interrupted: boolean;
   interruptData: InterruptData | null;
@@ -31,6 +32,7 @@ interface Props {
 export default function ChatArea({
   messages,
   streaming,
+  error,
   thinking,
   interrupted,
   interruptData,
@@ -87,6 +89,12 @@ export default function ChatArea({
           onApprove={onApprove}
           onReject={onReject}
         />
+      )}
+
+      {error && (
+        <div className="mx-6 mb-3 border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          {error}
+        </div>
       )}
 
       {/* 输入区 */}
